@@ -1,9 +1,5 @@
 import streamlit as st
 from datetime import datetime, timedelta
-from streamlit_autorefresh import st_autorefresh
-
-# Auto-refresh every 30 seconds
-st_autorefresh(interval=30 * 1000, key="reminder_refresh")
 
 # Initialize session state
 if "reminders" not in st.session_state:
@@ -45,7 +41,12 @@ for idx, rem in enumerate(st.session_state.reminders):
         with col1:
             if st.button(f"Mark Done: {rem['message']}", key=f"done_{idx}"):
                 rem["done"] = True
+                st.experimental_rerun()
         with col2:
             if st.button(f"Remind Later (5 min): {rem['message']}", key=f"later_{idx}"):
                 new_time = (datetime.combine(datetime.today(), rem["time"]) + timedelta(minutes=5)).time()
                 rem["time"] = new_time
+                st.experimental_rerun()
+
+# ---- Instructions ----
+st.info("⏱️ To see alerts, keep this Streamlit tab open and click 'Rerun' (top-right) or refresh manually every minute.")
