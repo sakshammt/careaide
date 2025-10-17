@@ -1,12 +1,15 @@
 import streamlit as st
 from datetime import datetime, timedelta
-import time
+from streamlit_autorefresh import st_autorefresh
 
-# Initialize session state for reminders
+# Auto-refresh every 30 seconds
+st_autorefresh(interval=30 * 1000, key="reminder_refresh")
+
+# Initialize session state
 if "reminders" not in st.session_state:
     st.session_state.reminders = []
 
-st.title("🧓 Eldercare Reminder App (Streamlit)")
+st.title("🧓 Eldercare Reminder App")
 
 # ---- Add New Reminder ----
 st.header("Add New Reminder")
@@ -35,20 +38,14 @@ else:
 st.header("Alerts")
 current_time = datetime.now().time()
 
-for rem in st.session_state.reminders:
+for idx, rem in enumerate(st.session_state.reminders):
     if not rem["done"] and rem["time"].hour == current_time.hour and rem["time"].minute == current_time.minute:
         st.warning(f"🔔 Reminder: {rem['message']}")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button(f"Mark Done: {rem['message']}"):
+            if st.button(f"Mark Done: {rem['message']}", key=f"done_{idx}"):
                 rem["done"] = True
-                st.experimental_rerun()
         with col2:
-            if st.button(f"Remind Later (5 min): {rem['message']}"):
+            if st.button(f"Remind Later (5 min): {rem['message']}", key=f"later_{idx}"):
                 new_time = (datetime.combine(datetime.today(), rem["time"]) + timedelta(minutes=5)).time()
                 rem["time"] = new_time
-                st.experimental_rerun()
-
-# ---- Auto-refresh every 30 seconds ----
-st.experimental_rerun()
-time.sleep(30)
