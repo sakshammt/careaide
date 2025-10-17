@@ -7,9 +7,7 @@ st.set_page_config(page_title="Eldercare Reminder App", page_icon="💊", layout
 # --- CUSTOM STYLE ---
 st.markdown("""
     <style>
-        body {
-            background-color: #f4f6f9;
-        }
+        body { background-color: #f4f6f9; }
         .main {
             background-color: #ffffff;
             border-radius: 16px;
@@ -25,9 +23,7 @@ st.markdown("""
             border: none;
             font-weight: 600;
         }
-        .stButton>button:hover {
-            background-color: #45a049;
-        }
+        .stButton>button:hover { background-color: #45a049; }
         .title {
             text-align: center;
             font-size: 2rem;
@@ -61,20 +57,28 @@ st.markdown("<div class='title'>🧓 Eldercare Reminder App</div>", unsafe_allow
 st.markdown("<div class='section-title'>➕ Add New Reminder</div>", unsafe_allow_html=True)
 col1, col2 = st.columns([2, 1])
 with col1:
-    message = st.text_input("Reminder Message", placeholder="e.g., Take Blood Pressure Medicine")
+    message = st.text_input("Reminder Message", placeholder="e.g., Take medicine, drink water")
+
 with col2:
-    time_input = st.time_input("Time", label_visibility="visible")
+    time_str = st.text_input("Enter Time (HH:MM)", placeholder="e.g., 14:30")
 
 if st.button("Add Reminder"):
-    if message.strip():
-        st.session_state.reminders.append({
-            "message": message,
-            "time": time_input,
-            "done": False
-        })
-        st.success(f"✅ Reminder '{message}' set for {time_input.strftime('%H:%M')}")
-    else:
+    if not message.strip():
         st.error("Please enter a reminder message.")
+    elif not time_str.strip():
+        st.error("Please enter a time.")
+    else:
+        try:
+            # Convert string time to datetime.time object
+            time_input = datetime.strptime(time_str, "%H:%M").time()
+            st.session_state.reminders.append({
+                "message": message,
+                "time": time_input,
+                "done": False
+            })
+            st.success(f"✅ Reminder '{message}' set for {time_input.strftime('%H:%M')}")
+        except ValueError:
+            st.error("Invalid time format! Please use HH:MM (24-hour format).")
 
 # --- LIST REMINDERS ---
 st.markdown("<div class='section-title'>🕒 Scheduled Reminders</div>", unsafe_allow_html=True)
